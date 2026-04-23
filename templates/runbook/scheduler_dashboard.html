@@ -1,0 +1,68 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Scheduler Dashboard - Prubnook{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Scheduler Dashboard</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Process Status</h5>
+                {% if scheduler_alive %}
+                <span class="badge bg-success fs-6">Alive</span>
+                {% else %}
+                <span class="badge bg-danger fs-6">Down</span>
+                {% endif %}
+                <p class="card-text mt-2">
+                    {% if heartbeat %}
+                    Last heartbeat: {{ heartbeat.timestamp|date:"Y-m-d H:i:s" }}<br>
+                    PID: {{ heartbeat.pid|default:"Unknown" }}
+                    {% else %}
+                    No heartbeat recorded.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Active Jobs</h5>
+                <p class="display-4">{{ jobs|length }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Scheduled Jobs</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Runbook</th>
+            <th>Cron</th>
+            <th>Status</th>
+            <th>Last Run</th>
+            <th>Next Run</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.runbook.name }}</td>
+            <td><code>{{ job.cron_expression }}</code></td>
+            <td>
+                <span class="badge bg-{% if job.is_active %}success{% else %}secondary{% endif %}">
+                    {% if job.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </td>
+            <td>{{ job.last_run_at|default:"Never"|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ job.next_run_at|default:"Unknown"|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">No scheduled jobs.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

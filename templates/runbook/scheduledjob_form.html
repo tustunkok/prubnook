@@ -1,0 +1,34 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}{% if job %}Edit{% else %}Create{% endif %} Scheduled Job - Prubnook{% endblock %}
+
+{% block content %}
+<h1>{% if job %}Edit{% else %}Create{% endif %} Scheduled Job</h1>
+
+<form method="post" class="mt-3">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="runbook" class="form-label">Runbook</label>
+        <select class="form-select" id="runbook" name="runbook" required>
+            <option value="">-- Select Runbook --</option>
+            {% for rb in runbooks %}
+            <option value="{{ rb.pk }}" {% if job.runbook_id == rb.pk %}selected{% endif %}>{{ rb.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="form-text">Only runbooks with webhook or shell steps (no manual steps or approvals) are eligible.</div>
+    </div>
+    <div class="mb-3">
+        <label for="cron_expression" class="form-label">Cron Expression</label>
+        <input type="text" class="form-control" id="cron_expression" name="cron_expression" value="{{ job.cron_expression|default:'' }}" required>
+        <div class="form-text">
+            Examples: <code>*/5 * * * *</code> (every 5 min), <code>0 9 * * 1</code> (Mon 9am), <code>0 0 * * *</code> (midnight daily)
+        </div>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if job.is_active or not job %}checked{% endif %}>
+        <label class="form-check-label" for="is_active">Active</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'scheduledjob_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

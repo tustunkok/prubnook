@@ -1,0 +1,78 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Execution #{{ execution.id }} - Prubnook{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Execution #{{ execution.id }} - {{ execution.runbook.name }}</h1>
+    <span class="badge bg-{% if execution.status == 'completed' %}success{% elif execution.status == 'failed' %}danger{% elif execution.status == 'running' %}primary{% else %}warning{% endif %} fs-5">
+        {{ execution.get_status_display }}
+    </span>
+</div>
+
+<p class="text-muted">Trigger: {{ execution.get_trigger_type_display }} | Started: {{ execution.started_at|date:"Y-m-d H:i:s" }}{% if execution.completed_at %} | Completed: {{ execution.completed_at|date:"Y-m-d H:i:s" }}{% endif %}</p>
+
+<h3 class="mt-4">Steps</h3>
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Step</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Output</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for se in execution.step_executions.all %}
+        <tr>
+            <td>{{ se.step.name }}</td>
+            <td><span class="badge bg-info">{{ se.step.get_step_type_display }}</span></td>
+            <td>
+                <span class="badge bg-{% if se.status == 'completed' %}success{% elif se.status == 'failed' %}danger{% elif se.status == 'running' %}primary{% else %}warning{% endif %}">
+                    {{ se.get_status_display }}
+                </span>
+            </td>
+            <td>
+                {% if se.output %}
+                <pre class="mb-0"><code>{{ se.output|truncatechars:200 }}</code></pre>
+                {% if se.output|length > 200 %}
+                <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#output{{ se.id }}">Show full</button>
+                <div class="collapse" id="output{{ se.id }}">
+                    <pre><code>{{ se.output }}</code></pre>
+                </div>
+                {% endif %}
+                {% else %}
+                <span class="text-muted">No output</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if se.status == 'waiting_approval' %}
+                    {% with approval=se.approval_requests.first %}
+                    {% if approval.status == 'pending' %}
+                    <form method="post" action="{% url 'execution_approve' approval.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="Comment">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="post" action="{% url 'execution_reject' approval.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                    {% endif %}
+                    {% endwith %}
+                {% endif %}
+                {% if se.status == 'waiting_manual' %}
+                <form method="post" action="{% url 'execution_manual_confirm' se.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success">Mark Done</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">No step executions yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

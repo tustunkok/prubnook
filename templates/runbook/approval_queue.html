@@ -1,0 +1,44 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Approval Queue - Prubnook{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Approval Queue</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Execution</th>
+            <th>Step</th>
+            <th>Runbook</th>
+            <th>Requested By</th>
+            <th>Requested At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for approval in approvals %}
+        <tr>
+            <td><a href="{% url 'execution_detail' approval.step_execution.execution.pk %}">#{{ approval.step_execution.execution.id }}</a></td>
+            <td>{{ approval.step_execution.step.name }}</td>
+            <td>{{ approval.step_execution.execution.runbook.name }}</td>
+            <td>{{ approval.requested_by.username }}</td>
+            <td>{{ approval.requested_at|date:"Y-m-d H:i:s" }}</td>
+            <td>
+                <form method="post" action="{% url 'execution_approve' approval.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="Comment">
+                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                </form>
+                <form method="post" action="{% url 'execution_reject' approval.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">No pending approvals.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,16 @@
+[project]
+name = "prubnook"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "apscheduler>=3.11.2",
+    "dj-database-url>=3.1.2",
+    "django>=5.2,<5.3",
+    "djangorestframework>=3.17.1",
+    "jinja2>=3.1.6",
+    "paramiko>=4.0.0",
+    "psycopg2-binary>=2.9.12",
+    "requests>=2.33.1",
+]

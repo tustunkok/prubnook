@@ -1,0 +1,48 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Audit Logs - Prubnook{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Audit Logs</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Entity Type</th>
+            <th>Entity ID</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in audit_logs %}
+        <tr>
+            <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ log.user.username|default:"System" }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.entity_type }}</td>
+            <td>{{ log.entity_id }}</td>
+            <td><pre class="mb-0"><code>{{ log.details|truncatechars:100 }}</code></pre></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">No audit logs found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

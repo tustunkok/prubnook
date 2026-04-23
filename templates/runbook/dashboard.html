@@ -1,0 +1,75 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Dashboard - Prubnook{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Runbooks</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for runbook in runbooks %}
+                <li class="list-group-item">
+                    <a href="{% url 'runbook_detail' runbook.pk %}">{{ runbook.name }}</a>
+                    <span class="badge bg-{% if runbook.is_active %}success{% else %}secondary{% endif %} float-end">{% if runbook.is_active %}Active{% else %}Inactive{% endif %}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No runbooks found.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-body">
+                <a href="{% url 'runbook_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="{% url 'runbook_create' %}" class="btn btn-sm btn-primary">Create Runbook</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Executions</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for exec in executions %}
+                <li class="list-group-item">
+                    <a href="{% url 'execution_detail' exec.pk %}">#{{ exec.id }} - {{ exec.runbook.name }}</a>
+                    <span class="badge bg-{% if exec.status == 'completed' %}success{% elif exec.status == 'failed' %}danger{% elif exec.status == 'running' %}primary{% else %}warning{% endif %} float-end">{{ exec.status|title }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No executions found.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-body">
+                <a href="{% url 'execution_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Pending Approvals</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for approval in pending_approvals %}
+                <li class="list-group-item">
+                    Step: {{ approval.step_execution.step.name }}
+                    <a href="{% url 'execution_detail' approval.step_execution.execution.pk %}" class="btn btn-sm btn-success float-end">View</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No pending approvals.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-body">
+                <a href="{% url 'approval_queue' %}" class="btn btn-sm btn-outline-primary">View Queue</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

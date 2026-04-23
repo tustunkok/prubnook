@@ -1,0 +1,42 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}Users - Prubnook{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Users</h1>
+    <a href="{% url 'user_create' %}" class="btn btn-primary">Create User</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Staff</th>
+            <th>Superuser</th>
+            <th>Groups</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.first_name }} {{ u.last_name }}</td>
+            <td>{% if u.is_staff %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+            <td>{% if u.is_superuser %}<span class="badge bg-danger">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+            <td>{{ u.groups.all|join:", "|default:"-" }}</td>
+            <td>
+                <a href="{% url 'user_update' u.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'user_delete' u.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted">No users found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

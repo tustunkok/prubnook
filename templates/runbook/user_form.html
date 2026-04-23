@@ -1,0 +1,49 @@
+{% extends 'runbook/base.html' %}
+
+{% block title %}{% if user_obj %}Edit{% else %}Create{% endif %} User - Prubnook{% endblock %}
+
+{% block content %}
+<h1>{% if user_obj %}Edit{% else %}Create{% endif %} User</h1>
+
+<form method="post" class="mt-3">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{ user_obj.username|default:'' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user_obj.email|default:'' }}">
+    </div>
+    <div class="mb-3">
+        <label for="first_name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_obj.first_name|default:'' }}">
+    </div>
+    <div class="mb-3">
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_obj.last_name|default:'' }}">
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password {% if user_obj %}(leave blank to keep current){% endif %}</label>
+        <input type="password" class="form-control" id="password" name="password" {% if not user_obj %}required{% endif %}>
+    </div>
+    <div class="mb-3">
+        <label for="groups" class="form-label">Groups</label>
+        <select class="form-select" id="groups" name="groups" multiple size="5">
+            {% for g in groups %}
+            <option value="{{ g.pk }}" {% if user_obj and g in user_obj.groups.all %}selected{% endif %}>{{ g.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="is_staff" name="is_staff" {% if user_obj.is_staff %}checked{% endif %}>
+        <label class="form-check-label" for="is_staff">Staff</label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="is_superuser" name="is_superuser" {% if user_obj.is_superuser %}checked{% endif %}>
+        <label class="form-check-label" for="is_superuser">Superuser</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'user_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
