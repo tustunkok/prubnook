@@ -254,3 +254,4 @@ class SchedulerHeartbeat(models.Model):
     hostname = models.CharField(max_length=255, default='default')
     pid = models.IntegerField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now=True)
+    sync_requested_at = models.DateTimeField(null=True, blank=True)
