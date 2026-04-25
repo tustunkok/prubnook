@@ -35,6 +35,9 @@ def run_scheduled_job(job_id):
     except ScheduledJob.DoesNotExist:
         logger.warning('ScheduledJob %s not found or inactive; skipping.', job_id)
         return
+    if not job.runbook.is_active:
+        logger.warning('ScheduledJob %s references a disabled runbook; skipping.', job_id)
+        return
     execution = RunbookExecution.objects.create(
         runbook=job.runbook,
         trigger_type=RunbookExecution.TRIGGER_SCHEDULED,

@@ -287,6 +287,9 @@ def execution_start(request, runbook_id):
     if not has_runbook_permission(request.user, runbook, RunbookPermission.PERMISSION_RUN):
         messages.error(request, 'You do not have permission to run this runbook.')
         return redirect('runbook_list')
+    if not runbook.is_active:
+        messages.error(request, 'This runbook is currently disabled and cannot be run.')
+        return redirect('runbook_list')
     execution = RunbookExecution.objects.create(
         runbook=runbook,
         triggered_by=request.user,
@@ -411,6 +414,8 @@ class RunbookViewSet(viewsets.ModelViewSet):
         runbook = self.get_object()
         if not has_runbook_permission(request.user, runbook, RunbookPermission.PERMISSION_RUN):
             return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        if not runbook.is_active:
+            return Response({'detail': 'This runbook is currently disabled and cannot be run.'}, status=status.HTTP_400_BAD_REQUEST)
         execution = RunbookExecution.objects.create(
             runbook=runbook,
             triggered_by=request.user,
